@@ -10,7 +10,7 @@ import {
 } from 'react';
 import { loadSounds, playSound as playSoundFn, setMuted } from '@/lib/sounds';
 
-type SoundName = 'vote' | 'submit' | 'reveal' | 'reaction' | 'countdown';
+type SoundName = 'vote' | 'submit' | 'reveal' | 'reaction' | 'countdown' | 'celebrate';
 
 interface SoundContextType {
   muted: boolean;

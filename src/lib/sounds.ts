@@ -1,6 +1,6 @@
 import { Howl, Howler } from 'howler';
 
-type SoundName = 'vote' | 'submit' | 'reveal' | 'reaction' | 'countdown';
+type SoundName = 'vote' | 'submit' | 'reveal' | 'reaction' | 'countdown' | 'celebrate';
 
 const sounds: Partial<Record<SoundName, Howl>> = {};
 let soundsLoaded = false;
@@ -16,6 +16,7 @@ export const loadSounds = (): void => {
       reveal: { src: '/sounds/reveal.mp3', volume: 0.7 },
       reaction: { src: '/sounds/reaction.mp3', volume: 0.3 },
       countdown: { src: '/sounds/countdown.mp3', volume: 0.6 },
+      celebrate: { src: '/sounds/celebrate.mp3', volume: 0.8 },
     };
 
     (Object.keys(soundConfig) as SoundName[]).forEach((name) => {

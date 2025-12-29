@@ -41,7 +41,7 @@ export function NewYearTimer({ variant = 'full' }: NewYearTimerProps) {
   }, [isNewYear, hasTriggeredCelebration]);
 
   const triggerCelebration = (): void => {
-    playSound('reveal');
+    playSound('celebrate');
 
     // Fire confetti multiple times
     const duration = 10 * 1000;
