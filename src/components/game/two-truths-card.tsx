@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { Clock, CheckCircle, XCircle, User } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
@@ -74,10 +74,14 @@ export function TwoTruthsCard({
     setLoading(null);
   };
 
-  // Play reveal sound when submission is revealed
+  // Track if we've already played the reveal sound for this submission
+  const hasPlayedRevealSound = useRef(submission.is_revealed);
+
+  // Play reveal sound only when submission transitions to revealed
   useEffect(() => {
-    if (submission.is_revealed && userGuess && userGuess.is_correct !== null) {
+    if (submission.is_revealed && !hasPlayedRevealSound.current && userGuess) {
       playSound('reveal');
+      hasPlayedRevealSound.current = true;
     }
   }, [submission.is_revealed, userGuess, playSound]);
 
