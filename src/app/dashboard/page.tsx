@@ -120,6 +120,30 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
         )}
+
+        {/* How to Play */}
+        <div className="space-y-3">
+          <h2 className="text-lg font-semibold">How to Play</h2>
+
+          <Card>
+            <CardContent className="pt-4 pb-4">
+              <div className="space-y-3 text-sm">
+                <div>
+                  <p className="font-medium text-orange-500">Hot Takes</p>
+                  <p className="text-muted-foreground">Post anonymous opinions. Vote agree/disagree on others.</p>
+                </div>
+                <div>
+                  <p className="font-medium text-blue-500">Two Truths & a Lie</p>
+                  <p className="text-muted-foreground">Share 3 statements (2 true, 1 lie). Others guess the lie.</p>
+                </div>
+                <div className="pt-2 border-t">
+                  <p className="font-medium text-yellow-500">Scoring</p>
+                  <p className="text-muted-foreground">+10 points for each correct lie guess!</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </main>
 
       <MobileNav />
