@@ -25,7 +25,8 @@ export function VoteButtons({
   const { playSound } = useSound();
 
   const handleVote = async (voteType: 'agree' | 'disagree'): Promise<void> => {
-    if (hasVoted) return;
+    // If already voted for this option, do nothing
+    if (userVote === voteType) return;
 
     setLoading(voteType);
     const { error } = await onVote(voteType);
@@ -49,7 +50,7 @@ export function VoteButtons({
           userVote === 'agree' && 'bg-green-600 hover:bg-green-700'
         )}
         onClick={() => handleVote('agree')}
-        disabled={hasVoted || loading !== null}
+        disabled={userVote === 'agree' || loading !== null}
       >
         <ThumbsUp className="h-4 w-4" />
         <span>{agreeCount}</span>
@@ -65,7 +66,7 @@ export function VoteButtons({
           userVote === 'disagree' && 'bg-red-600 hover:bg-red-700'
         )}
         onClick={() => handleVote('disagree')}
-        disabled={hasVoted || loading !== null}
+        disabled={userVote === 'disagree' || loading !== null}
       >
         <ThumbsDown className="h-4 w-4" />
         <span>{disagreeCount}</span>
