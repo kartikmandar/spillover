@@ -121,7 +121,7 @@ export function useTwoTruths(): UseTwoTruthsReturn {
     [supabase, user]
   );
 
-  // Guess which is the lie (one per submission)
+  // Guess which is the lie (one per submission, before reveal)
   const makeGuess = useCallback(
     async (
       submissionId: string,
@@ -129,8 +129,14 @@ export function useTwoTruths(): UseTwoTruthsReturn {
     ): Promise<{ error?: string }> => {
       if (!user) return { error: 'Not authenticated' };
 
-      // Check if already guessed
       const submission = submissions.find((s) => s.id === submissionId);
+
+      // Check if already revealed
+      if (submission?.is_revealed) {
+        return { error: 'Submission already revealed' };
+      }
+
+      // Check if already guessed
       if (submission?.guesses?.some((g) => g.user_id === user.id)) {
         return { error: 'Already guessed' };
       }
