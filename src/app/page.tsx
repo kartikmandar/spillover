@@ -166,7 +166,7 @@ export default function LoginPage() {
           {step === 'otp' && (
             <>
               <p className="text-sm text-muted-foreground text-center">
-                Enter the 6-digit code sent to {email}
+                Enter the code sent to {email}
               </p>
               <Input
                 type="text"
@@ -175,11 +175,11 @@ export default function LoginPage() {
                 value={otp}
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
                 className="text-lg h-12 text-center tracking-widest"
-                maxLength={6}
+                maxLength={8}
               />
               <Button
                 onClick={verifyOTP}
-                disabled={loading || otp.length !== 6}
+                disabled={loading || otp.length < 6}
                 className="w-full h-12 text-lg"
               >
                 {loading ? 'Verifying...' : 'Verify'}
