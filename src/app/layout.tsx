@@ -11,6 +11,19 @@ export const metadata: Metadata = {
   title: 'Spillover | RRI New Year 2026',
   description: 'Party games for RRI Astrophysics crew',
   robots: 'noindex, nofollow',
+  manifest: '/manifest.json',
+  icons: {
+    icon: [
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+    ],
+    apple: '/apple-touch-icon.png',
+  },
+  openGraph: {
+    title: 'Spillover | RRI New Year 2026',
+    description: 'Party games for RRI Astrophysics crew',
+    images: [{ url: '/icon-512.png', width: 512, height: 512 }],
+  },
 };
 
 export const viewport: Viewport = {

@@ -12,6 +12,7 @@ interface VoteButtonsProps {
   userVote: 'agree' | 'disagree' | undefined;
   hasVoted: boolean;
   onVote: (voteType: 'agree' | 'disagree') => Promise<{ error?: string }>;
+  isOwn?: boolean;
 }
 
 export function VoteButtons({
@@ -20,11 +21,14 @@ export function VoteButtons({
   userVote,
   hasVoted,
   onVote,
+  isOwn = false,
 }: VoteButtonsProps) {
   const [loading, setLoading] = useState<'agree' | 'disagree' | null>(null);
   const { playSound } = useSound();
 
   const handleVote = async (voteType: 'agree' | 'disagree'): Promise<void> => {
+    // Can't vote on own hot takes
+    if (isOwn) return;
     // If already voted for this option, do nothing
     if (userVote === voteType) return;
 
@@ -50,7 +54,7 @@ export function VoteButtons({
           userVote === 'agree' && 'bg-green-600 hover:bg-green-700'
         )}
         onClick={() => handleVote('agree')}
-        disabled={userVote === 'agree' || loading !== null}
+        disabled={isOwn || userVote === 'agree' || loading !== null}
       >
         <ThumbsUp className="h-4 w-4" />
         <span>{agreeCount}</span>
@@ -66,7 +70,7 @@ export function VoteButtons({
           userVote === 'disagree' && 'bg-red-600 hover:bg-red-700'
         )}
         onClick={() => handleVote('disagree')}
-        disabled={userVote === 'disagree' || loading !== null}
+        disabled={isOwn || userVote === 'disagree' || loading !== null}
       >
         <ThumbsDown className="h-4 w-4" />
         <span>{disagreeCount}</span>

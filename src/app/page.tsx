@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useSupabase } from '@/providers/supabase-provider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -137,11 +138,23 @@ export default function LoginPage() {
       <NewYearTimer variant="compact" />
 
       <Card className="w-full max-w-sm">
-        <CardHeader className="text-center">
-          <CardTitle className="text-3xl">Spillover</CardTitle>
-          <p className="text-muted-foreground text-sm">
-            RRI Astrophysics NYE 2026
-          </p>
+        <CardHeader className="text-center space-y-4">
+          <div className="flex justify-center">
+            <Image
+              src="/icon-192.png"
+              alt="Spillover"
+              width={120}
+              height={120}
+              className="rounded-2xl"
+              priority
+            />
+          </div>
+          <div>
+            <CardTitle className="text-3xl">Spillover</CardTitle>
+            <p className="text-muted-foreground text-sm">
+              RRI Astrophysics NYE 2026
+            </p>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           {step === 'email' && (

@@ -53,6 +53,7 @@ export function HotTakeCard({
           userVote={userVote}
           hasVoted={hasVoted}
           onVote={onVote}
+          isOwn={isOwn}
         />
         <EmojiReactions
           reactions={reactions as HotTakeReaction[]}
