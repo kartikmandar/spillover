@@ -4,7 +4,7 @@
 -- Users table (extends Supabase auth.users)
 CREATE TABLE profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  phone VARCHAR(20) UNIQUE NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
   display_name VARCHAR(50) NOT NULL,
   score INTEGER DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW(),

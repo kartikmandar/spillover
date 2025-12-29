@@ -12,7 +12,7 @@ export interface Database {
       profiles: {
         Row: {
           id: string;
-          phone: string;
+          email: string;
           display_name: string;
           score: number;
           created_at: string;
@@ -20,7 +20,7 @@ export interface Database {
         };
         Insert: {
           id: string;
-          phone: string;
+          email: string;
           display_name: string;
           score?: number;
           created_at?: string;
@@ -28,7 +28,7 @@ export interface Database {
         };
         Update: {
           id?: string;
-          phone?: string;
+          email?: string;
           display_name?: string;
           score?: number;
           created_at?: string;

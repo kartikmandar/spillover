@@ -1,6 +1,6 @@
 export interface Profile {
   id: string;
-  phone: string;
+  email: string;
   display_name: string;
   score: number;
   created_at: string;

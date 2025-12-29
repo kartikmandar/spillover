@@ -8,13 +8,13 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { NewYearTimer } from '@/components/countdown/new-year-timer';
 
-type Step = 'phone' | 'otp' | 'name';
+type Step = 'email' | 'otp' | 'name';
 
 export default function LoginPage() {
-  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [name, setName] = useState('');
-  const [step, setStep] = useState<Step>('phone');
+  const [step, setStep] = useState<Step>('email');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
@@ -43,15 +43,12 @@ export default function LoginPage() {
     checkProfile();
   }, [user, authLoading, supabase, router]);
 
-  const formatPhone = (p: string): string =>
-    p.startsWith('+') ? p : `+91${p}`;
-
   const sendOTP = async (): Promise<void> => {
     setLoading(true);
     setError('');
 
     const { error: otpError } = await supabase.auth.signInWithOtp({
-      phone: formatPhone(phone),
+      email: email.trim().toLowerCase(),
     });
 
     if (otpError) {
@@ -67,9 +64,9 @@ export default function LoginPage() {
     setError('');
 
     const { data, error: verifyError } = await supabase.auth.verifyOtp({
-      phone: formatPhone(phone),
+      email: email.trim().toLowerCase(),
       token: otp,
-      type: 'sms',
+      type: 'email',
     });
 
     if (verifyError) {
@@ -105,14 +102,14 @@ export default function LoginPage() {
 
     if (!currentUser) {
       setError('Session expired, please try again');
-      setStep('phone');
+      setStep('email');
       setLoading(false);
       return;
     }
 
     const { error: saveError } = await supabase.from('profiles').upsert({
       id: currentUser.id,
-      phone: formatPhone(phone),
+      email: email.trim().toLowerCase(),
       display_name: name.trim(),
     });
 
@@ -132,6 +129,8 @@ export default function LoginPage() {
     );
   }
 
+  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4 gap-8">
       {/* New Year Countdown at top */}
@@ -145,22 +144,21 @@ export default function LoginPage() {
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
-          {step === 'phone' && (
+          {step === 'email' && (
             <>
               <Input
-                type="tel"
-                placeholder="Phone (e.g., 9876543210)"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="text-lg h-12"
-                maxLength={10}
               />
               <Button
                 onClick={sendOTP}
-                disabled={loading || phone.length < 10}
+                disabled={loading || !isValidEmail}
                 className="w-full h-12 text-lg"
               >
-                {loading ? 'Sending...' : 'Send OTP'}
+                {loading ? 'Sending...' : 'Send Code'}
               </Button>
             </>
           )}
@@ -168,12 +166,12 @@ export default function LoginPage() {
           {step === 'otp' && (
             <>
               <p className="text-sm text-muted-foreground text-center">
-                Enter the 6-digit code sent to +91{phone}
+                Enter the 6-digit code sent to {email}
               </p>
               <Input
                 type="text"
                 inputMode="numeric"
-                placeholder="Enter OTP"
+                placeholder="Enter code"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
                 className="text-lg h-12 text-center tracking-widest"
@@ -189,12 +187,12 @@ export default function LoginPage() {
               <Button
                 variant="ghost"
                 onClick={() => {
-                  setStep('phone');
+                  setStep('email');
                   setOtp('');
                 }}
                 className="w-full"
               >
-                Change number
+                Change email
               </Button>
             </>
           )}
