@@ -146,12 +146,27 @@ export function useTwoTruths(): UseTwoTruthsReturn {
     [supabase, user, submissions]
   );
 
-  // Add emoji reaction
+  // Toggle emoji reaction (add if not exists, remove if exists)
   const addReaction = useCallback(
     async (submissionId: string, emoji: string): Promise<{ error?: string }> => {
       if (!user) return { error: 'Not authenticated' };
 
-      const { error } = await supabase.from('two_truths_reactions').upsert({
+      // Check if user already has this reaction
+      const existing = submissions
+        .find((s) => s.id === submissionId)
+        ?.reactions?.find((r) => r.user_id === user.id && r.emoji === emoji);
+
+      if (existing) {
+        // Remove reaction
+        const { error } = await supabase
+          .from('two_truths_reactions')
+          .delete()
+          .eq('id', existing.id);
+        return { error: error?.message };
+      }
+
+      // Add reaction
+      const { error } = await supabase.from('two_truths_reactions').insert({
         submission_id: submissionId,
         user_id: user.id,
         emoji,
@@ -159,7 +174,7 @@ export function useTwoTruths(): UseTwoTruthsReturn {
 
       return { error: error?.message };
     },
-    [supabase, user]
+    [supabase, user, submissions]
   );
 
   // Get user's last submission time

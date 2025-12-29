@@ -138,19 +138,25 @@ CREATE POLICY "Hot takes viewable by authenticated" ON hot_takes
 CREATE POLICY "Authenticated can submit hot takes" ON hot_takes
   FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
 
--- Votes: Authenticated users, one per hot take
+-- Votes: Authenticated users, one per hot take (can change vote)
 CREATE POLICY "Votes viewable by authenticated" ON hot_take_votes
   FOR SELECT TO authenticated USING (true);
 
 CREATE POLICY "Authenticated can vote once" ON hot_take_votes
   FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
 
--- Reactions: Similar to votes
+CREATE POLICY "Users can update own vote" ON hot_take_votes
+  FOR UPDATE TO authenticated USING (auth.uid() = user_id);
+
+-- Reactions: Similar to votes (can toggle)
 CREATE POLICY "Reactions viewable by authenticated" ON hot_take_reactions
   FOR SELECT TO authenticated USING (true);
 
 CREATE POLICY "Authenticated can react" ON hot_take_reactions
   FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete own hot take reactions" ON hot_take_reactions
+  FOR DELETE TO authenticated USING (auth.uid() = user_id);
 
 -- Two Truths: All authenticated can view, own submissions only
 CREATE POLICY "Submissions viewable by authenticated" ON two_truths_submissions
@@ -169,12 +175,15 @@ CREATE POLICY "Guesses viewable by authenticated" ON two_truths_guesses
 CREATE POLICY "Authenticated can guess once" ON two_truths_guesses
   FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
 
--- Two Truths Reactions
+-- Two Truths Reactions (can toggle)
 CREATE POLICY "Two truths reactions viewable by authenticated" ON two_truths_reactions
   FOR SELECT TO authenticated USING (true);
 
 CREATE POLICY "Authenticated can react to two truths" ON two_truths_reactions
   FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete own two truths reactions" ON two_truths_reactions
+  FOR DELETE TO authenticated USING (auth.uid() = user_id);
 
 -- ============================================
 -- REALTIME SUBSCRIPTIONS

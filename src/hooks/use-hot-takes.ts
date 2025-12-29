@@ -97,7 +97,7 @@ export function useHotTakes(): UseHotTakesReturn {
     [supabase, user]
   );
 
-  // Vote on hot take (only once)
+  // Vote on hot take (can change vote)
   const vote = useCallback(
     async (
       hotTakeId: string,
@@ -111,7 +111,16 @@ export function useHotTakes(): UseHotTakesReturn {
         ?.votes?.find((v) => v.user_id === user.id);
 
       if (existing) {
-        return { error: 'Already voted' };
+        // If same vote, do nothing
+        if (existing.vote === voteType) {
+          return {};
+        }
+        // Update to new vote
+        const { error } = await supabase
+          .from('hot_take_votes')
+          .update({ vote: voteType })
+          .eq('id', existing.id);
+        return { error: error?.message };
       }
 
       const { error } = await supabase.from('hot_take_votes').insert({
@@ -125,12 +134,27 @@ export function useHotTakes(): UseHotTakesReturn {
     [supabase, user, hotTakes]
   );
 
-  // Add emoji reaction
+  // Toggle emoji reaction (add if not exists, remove if exists)
   const addReaction = useCallback(
     async (hotTakeId: string, emoji: string): Promise<{ error?: string }> => {
       if (!user) return { error: 'Not authenticated' };
 
-      const { error } = await supabase.from('hot_take_reactions').upsert({
+      // Check if user already has this reaction
+      const existing = hotTakes
+        .find((t) => t.id === hotTakeId)
+        ?.reactions?.find((r) => r.user_id === user.id && r.emoji === emoji);
+
+      if (existing) {
+        // Remove reaction
+        const { error } = await supabase
+          .from('hot_take_reactions')
+          .delete()
+          .eq('id', existing.id);
+        return { error: error?.message };
+      }
+
+      // Add reaction
+      const { error } = await supabase.from('hot_take_reactions').insert({
         hot_take_id: hotTakeId,
         user_id: user.id,
         emoji,
@@ -138,7 +162,7 @@ export function useHotTakes(): UseHotTakesReturn {
 
       return { error: error?.message };
     },
-    [supabase, user]
+    [supabase, user, hotTakes]
   );
 
   // Get user's own hot takes

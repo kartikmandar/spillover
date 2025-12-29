@@ -49,12 +49,15 @@ export default function TwoTruthsPage() {
 
   if (!user) return null;
 
-  // Filter out submissions where user hasn't guessed yet and it's not revealed (to show first)
-  const unrevealed = submissions.filter(
+  // Sort submissions: unrevealed others first (for guessing), then own, then revealed
+  const unrevealedOthers = submissions.filter(
     (s) => !s.is_revealed && s.user_id !== user.id
   );
-  const revealed = submissions.filter((s) => s.is_revealed);
-  const sortedSubmissions = [...unrevealed, ...revealed];
+  const ownSubmissions = submissions.filter((s) => s.user_id === user.id);
+  const revealedOthers = submissions.filter(
+    (s) => s.is_revealed && s.user_id !== user.id
+  );
+  const sortedSubmissions = [...unrevealedOthers, ...ownSubmissions, ...revealedOthers];
 
   return (
     <div className="flex flex-col min-h-screen pb-20">
