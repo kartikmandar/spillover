@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, differenceInMinutes } from 'date-fns';
 import { Clock, CheckCircle, XCircle, User } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -89,12 +89,18 @@ export function TwoTruthsCard({
     addSuffix: true,
   });
 
+  // Check if card is new (created within last 3 minutes)
+  const isNew = differenceInMinutes(new Date(), new Date(submission.created_at)) < 3;
+
   // Count guesses per statement
   const getGuessCount = (index: number): number =>
     guesses.filter((g) => g.guessed_lie_index === index).length;
 
   return (
-    <Card className={cn(isOwn && 'border-primary/50')}>
+    <Card className={cn(
+      isOwn && 'border-primary/50',
+      isNew && !submission.is_revealed && 'card-new-glow'
+    )}>
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

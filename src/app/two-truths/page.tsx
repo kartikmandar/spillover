@@ -1,20 +1,23 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Plus } from 'lucide-react';
+import { toast } from 'sonner';
 import { useSupabase } from '@/providers/supabase-provider';
 import { useTwoTruths } from '@/hooks/use-two-truths';
 import { useCooldown } from '@/hooks/use-cooldown';
+import { usePartyMode } from '@/hooks/use-party-mode';
 import { Button } from '@/components/ui/button';
 import { TwoTruthsCard } from '@/components/game/two-truths-card';
 import { MobileNav } from '@/components/layout/mobile-nav';
 import { COOLDOWNS } from '@/lib/constants';
+import { cn } from '@/lib/utils';
 
 export default function TwoTruthsPage() {
   const router = useRouter();
-  const { user, loading: authLoading } = useSupabase();
+  const { supabase, user, loading: authLoading } = useSupabase();
   const {
     submissions,
     loading,
@@ -25,6 +28,8 @@ export default function TwoTruthsPage() {
     getTimeUntilReveal,
     getUserSubmission,
   } = useTwoTruths();
+  const { isPartyMode, intensity } = usePartyMode();
+  const prevGuessCount = useRef<Record<string, number>>({});
 
   const lastSubmissionTime = getLastSubmissionTime();
   const { canAct } = useCooldown(
@@ -38,6 +43,29 @@ export default function TwoTruthsPage() {
       router.push('/');
     }
   }, [user, authLoading, router]);
+
+  // Live activity feed - show toast when someone guesses
+  useEffect(() => {
+    if (loading || !user) return;
+
+    submissions.forEach((submission) => {
+      const currentCount = submission.guesses?.length || 0;
+      const prevCount = prevGuessCount.current[submission.id] || 0;
+
+      if (currentCount > prevCount && prevCount > 0) {
+        // New guess detected - find the new guesses
+        const ownerName = submission.profile?.display_name || 'Someone';
+        if (submission.user_id === user.id) {
+          toast(`Someone just guessed on your submission!`, {
+            icon: '🎯',
+            duration: 3000,
+          });
+        }
+      }
+
+      prevGuessCount.current[submission.id] = currentCount;
+    });
+  }, [submissions, loading, user]);
 
   if (authLoading || loading) {
     return (
@@ -60,7 +88,10 @@ export default function TwoTruthsPage() {
   const sortedSubmissions = [...unrevealedOthers, ...ownSubmissions, ...revealedOthers];
 
   return (
-    <div className="flex flex-col min-h-screen pb-20">
+    <div className={cn(
+      "flex flex-col min-h-screen pb-20",
+      isPartyMode && intensity > 0.5 ? "party-gradient-intense" : isPartyMode ? "party-gradient" : ""
+    )}>
       {/* Header */}
       <header className="sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
         <div className="flex items-center justify-between p-4">

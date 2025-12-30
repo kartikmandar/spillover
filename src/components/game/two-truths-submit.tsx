@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useSound } from '@/providers/sound-provider';
 import { CooldownTimer } from './cooldown-timer';
@@ -30,6 +30,20 @@ export function TwoTruthsSubmit({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { playSound } = useSound();
+  const textareaRefs = useRef<(HTMLTextAreaElement | null)[]>([null, null, null]);
+
+  // Auto-resize textareas as content grows
+  const resizeTextarea = useCallback((index: number): void => {
+    const textarea = textareaRefs.current[index];
+    if (textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
+    }
+  }, []);
+
+  useEffect(() => {
+    statements.forEach((_, index) => resizeTextarea(index));
+  }, [statements, resizeTextarea]);
 
   const handleStatementChange = (index: number, value: string): void => {
     const newStatements = [...statements];
@@ -85,17 +99,19 @@ export function TwoTruthsSubmit({
 
         {[0, 1, 2].map((index) => (
           <div key={index} className="space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="font-mono text-sm text-muted-foreground w-6">
+            <div className="flex gap-2">
+              <span className="font-mono text-sm text-muted-foreground w-6 pt-2">
                 {index + 1}.
               </span>
-              <Input
+              <Textarea
+                ref={(el) => { textareaRefs.current[index] = el; }}
                 placeholder={`Statement ${index + 1}`}
                 value={statements[index]}
                 onChange={(e) => handleStatementChange(index, e.target.value)}
                 maxLength={150}
-                className="flex-1"
+                className="flex-1 min-h-[40px] max-h-[120px]"
                 disabled={disabled || loading}
+                rows={1}
               />
             </div>
             <div className="flex items-center gap-2 pl-8">

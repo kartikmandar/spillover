@@ -152,7 +152,7 @@ export default function LoginPage() {
           <div>
             <CardTitle className="text-3xl">Spillover</CardTitle>
             <p className="text-muted-foreground text-sm">
-              RRI Astrophysics NYE 2026
+              RRI NYE 2026
             </p>
           </div>
         </CardHeader>

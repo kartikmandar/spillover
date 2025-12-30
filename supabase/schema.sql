@@ -81,15 +81,16 @@ CREATE INDEX idx_hot_take_votes_take ON hot_take_votes(hot_take_id);
 CREATE INDEX idx_two_truths_reveal ON two_truths_submissions(reveal_at) WHERE NOT is_revealed;
 CREATE INDEX idx_two_truths_guesses_sub ON two_truths_guesses(submission_id);
 
--- Function to auto-reveal two truths after 30 minutes
+-- Function to auto-reveal two truths after the reveal time
 CREATE OR REPLACE FUNCTION reveal_expired_submissions()
 RETURNS void AS $$
 BEGIN
+  -- Mark expired submissions as revealed
   UPDATE two_truths_submissions
   SET is_revealed = TRUE
   WHERE reveal_at <= NOW() AND is_revealed = FALSE;
 
-  -- Calculate points for correct guesses
+  -- Calculate points for correct guesses (only for unprocessed guesses)
   UPDATE two_truths_guesses g
   SET
     is_correct = (g.guessed_lie_index = s.lie_index),
@@ -99,12 +100,18 @@ BEGIN
     AND s.is_revealed = TRUE
     AND g.is_correct IS NULL;
 
-  -- Update user scores
+  -- Update user scores ONLY for newly processed guesses
   UPDATE profiles p
-  SET score = score + COALESCE(
-    (SELECT SUM(points_earned) FROM two_truths_guesses WHERE user_id = p.id AND points_earned > 0),
-    0
-  );
+  SET score = p.score + sub.new_points
+  FROM (
+    SELECT user_id, SUM(points_earned) as new_points
+    FROM two_truths_guesses
+    WHERE is_correct = TRUE
+      AND points_earned > 0
+      AND created_at > NOW() - INTERVAL '2 minutes'
+    GROUP BY user_id
+  ) sub
+  WHERE p.id = sub.user_id;
 END;
 $$ LANGUAGE plpgsql;
 

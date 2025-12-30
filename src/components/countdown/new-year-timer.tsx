@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useSound } from '@/providers/sound-provider';
 import { useCountdown } from '@/hooks/use-countdown';
+import { usePartyMode } from '@/hooks/use-party-mode';
+import { cn } from '@/lib/utils';
 import confetti from 'canvas-confetti';
 
 const TARGET = new Date(
@@ -13,10 +15,19 @@ interface NewYearTimerProps {
   variant?: 'full' | 'compact';
 }
 
+const CELEBRATION_KEY = 'spillover_celebration_triggered';
+
 export function NewYearTimer({ variant = 'full' }: NewYearTimerProps) {
   const { timeLeft, isNewYear } = useCountdown(TARGET);
   const { playSound } = useSound();
-  const [hasTriggeredCelebration, setHasTriggeredCelebration] = useState(false);
+  const { isPartyMode, intensity } = usePartyMode();
+  const [hasTriggeredCelebration, setHasTriggeredCelebration] = useState(() => {
+    // Check localStorage on initial load
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem(CELEBRATION_KEY) === 'true';
+    }
+    return false;
+  });
 
   useEffect(() => {
     // Play countdown sounds in last 10 seconds
@@ -33,9 +44,10 @@ export function NewYearTimer({ variant = 'full' }: NewYearTimerProps) {
   }, [timeLeft, playSound]);
 
   useEffect(() => {
-    // Trigger confetti at midnight
+    // Trigger confetti at midnight - only once per session
     if (isNewYear && !hasTriggeredCelebration) {
       setHasTriggeredCelebration(true);
+      localStorage.setItem(CELEBRATION_KEY, 'true');
       triggerCelebration();
     }
   }, [isNewYear, hasTriggeredCelebration]);
@@ -70,12 +82,25 @@ export function NewYearTimer({ variant = 'full' }: NewYearTimerProps) {
     frame();
   };
 
+  // Determine hype level based on time remaining
+  const getHypeLevel = (): 'none' | 'low' | 'medium' | 'high' | 'extreme' => {
+    if (!timeLeft) return 'none';
+    if (timeLeft.days === 0 && timeLeft.hours === 0 && timeLeft.minutes < 1) return 'extreme';
+    if (timeLeft.days === 0 && timeLeft.hours === 0 && timeLeft.minutes < 10) return 'high';
+    if (timeLeft.days === 0 && timeLeft.hours < 1) return 'medium';
+    if (timeLeft.days === 0 && timeLeft.hours < 3) return 'low';
+    return 'none';
+  };
+
+  const hypeLevel = getHypeLevel();
+
   if (isNewYear) {
     return (
       <div className="text-center p-4 animate-pulse">
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-yellow-400 via-red-500 to-pink-500 bg-clip-text text-transparent">
+        <h1 className="text-4xl font-bold text-shimmer">
           Happy New Year 2026!
         </h1>
+        <p className="text-lg text-muted-foreground mt-2">🎉 Let&apos;s gooo! 🎉</p>
       </div>
     );
   }
@@ -84,9 +109,21 @@ export function NewYearTimer({ variant = 'full' }: NewYearTimerProps) {
 
   if (variant === 'compact') {
     return (
-      <div className="text-center text-muted-foreground">
-        <p className="text-xs uppercase tracking-wider">New Year 2026 in</p>
-        <p className="font-mono text-lg">
+      <div className={cn(
+        "text-center text-muted-foreground",
+        isPartyMode && "card-glow rounded-lg p-2"
+      )}>
+        <p className={cn(
+          "text-xs uppercase tracking-wider",
+          hypeLevel === 'extreme' && "text-shimmer"
+        )}>
+          New Year 2026 in
+        </p>
+        <p className={cn(
+          "font-mono text-lg",
+          hypeLevel === 'high' && "countdown-hype",
+          hypeLevel === 'extreme' && "countdown-hype-intense text-xl"
+        )}>
           {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m{' '}
           {timeLeft.seconds}s
         </p>
@@ -95,25 +132,52 @@ export function NewYearTimer({ variant = 'full' }: NewYearTimerProps) {
   }
 
   return (
-    <div className="text-center space-y-2">
-      <p className="text-sm uppercase tracking-wider text-muted-foreground">
-        New Year 2026 Countdown
+    <div className={cn(
+      "text-center space-y-2 p-4 rounded-lg transition-all duration-500",
+      isPartyMode && intensity > 0.5 && "card-glow",
+      hypeLevel === 'extreme' && "party-gradient-intense"
+    )}>
+      <p className={cn(
+        "text-sm uppercase tracking-wider text-muted-foreground transition-all",
+        hypeLevel === 'extreme' && "text-shimmer text-base font-bold"
+      )}>
+        {hypeLevel === 'extreme' ? '🎆 ALMOST THERE! 🎆' :
+         hypeLevel === 'high' ? '🔥 Get Ready! 🔥' :
+         hypeLevel === 'medium' ? '⚡ Less than an hour!' :
+         'New Year 2026 Countdown'}
       </p>
-      <div className="flex justify-center gap-2">
+      <div className={cn(
+        "flex justify-center gap-2",
+        hypeLevel === 'high' && "countdown-hype",
+        hypeLevel === 'extreme' && "countdown-hype-intense"
+      )}>
         {[
           { value: timeLeft.days, label: 'Days' },
           { value: timeLeft.hours, label: 'Hours' },
           { value: timeLeft.minutes, label: 'Min' },
           { value: timeLeft.seconds, label: 'Sec' },
         ].map(({ value, label }) => (
-          <div key={label} className="flex flex-col items-center">
-            <span className="text-3xl font-mono font-bold tabular-nums">
+          <div key={label} className={cn(
+            "flex flex-col items-center p-2 rounded-md transition-all",
+            isPartyMode && "bg-primary/10",
+            hypeLevel === 'extreme' && "bg-primary/20"
+          )}>
+            <span className={cn(
+              "text-3xl font-mono font-bold tabular-nums transition-all",
+              hypeLevel === 'high' && "text-4xl text-orange-500",
+              hypeLevel === 'extreme' && "text-5xl text-shimmer"
+            )}>
               {String(value).padStart(2, '0')}
             </span>
             <span className="text-xs text-muted-foreground">{label}</span>
           </div>
         ))}
       </div>
+      {isPartyMode && (
+        <p className="text-xs text-purple-400 animate-pulse">
+          🎉 Party mode activated! 🎉
+        </p>
+      )}
     </div>
   );
 }

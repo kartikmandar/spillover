@@ -1,9 +1,10 @@
 'use client';
 
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, differenceInMinutes } from 'date-fns';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { VoteButtons } from './vote-buttons';
 import { EmojiReactions } from './emoji-reactions';
+import { cn } from '@/lib/utils';
 import type { HotTake, HotTakeVote, HotTakeReaction } from '@/types';
 
 interface HotTakeCardProps {
@@ -35,8 +36,14 @@ export function HotTakeCard({
     addSuffix: true,
   });
 
+  // Check if card is new (created within last 3 minutes)
+  const isNew = differenceInMinutes(new Date(), new Date(hotTake.created_at)) < 3;
+
   return (
-    <Card className={isOwn ? 'border-primary/50' : ''}>
+    <Card className={cn(
+      isOwn && 'border-primary/50',
+      isNew && 'card-new-glow'
+    )}>
       <CardContent className="pt-4 pb-2">
         <p className="text-base leading-relaxed">{hotTake.content}</p>
         <div className="flex items-center justify-between mt-2">

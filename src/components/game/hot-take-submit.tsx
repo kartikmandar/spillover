@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useSound } from '@/providers/sound-provider';
 import { CooldownTimer } from './cooldown-timer';
@@ -23,6 +23,16 @@ export function HotTakeSubmit({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { playSound } = useSound();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Auto-resize textarea as content grows
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
+    }
+  }, [content]);
 
   const handleSubmit = async (): Promise<void> => {
     if (!content.trim() || loading) return;
@@ -52,18 +62,20 @@ export function HotTakeSubmit({
           cooldownMs={COOLDOWNS.HOT_TAKE_SUBMIT}
         />
 
-        <Input
+        <Textarea
+          ref={textareaRef}
           placeholder="Share your spiciest opinion..."
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          maxLength={280}
-          className="h-12"
+          maxLength={500}
+          className="min-h-[48px] max-h-[200px]"
           disabled={disabled || loading}
+          rows={1}
         />
 
         <div className="flex items-center justify-between">
           <span className="text-xs text-muted-foreground">
-            {content.length}/280
+            {content.length}/500
           </span>
           <Button
             onClick={handleSubmit}
@@ -71,7 +83,7 @@ export function HotTakeSubmit({
               disabled ||
               loading ||
               content.trim().length < 3 ||
-              content.length > 280
+              content.length > 500
             }
           >
             {loading ? 'Posting...' : 'Post Anonymously'}

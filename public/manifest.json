@@ -1,7 +1,7 @@
 {
   "name": "Spillover - RRI New Year 2026",
   "short_name": "Spillover",
-  "description": "Party games for RRI Astrophysics crew",
+  "description": "Party games for RRI crew",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#000000",
