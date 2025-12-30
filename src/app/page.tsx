@@ -3,23 +3,52 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { Lock } from 'lucide-react';
 import { useSupabase } from '@/providers/supabase-provider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { NewYearTimer } from '@/components/countdown/new-year-timer';
 
-type Step = 'email' | 'otp' | 'name';
+type Step = 'party-code' | 'email' | 'otp' | 'name';
+
+const PARTY_CODE = process.env.NEXT_PUBLIC_PARTY_CODE;
+const PARTY_CODE_KEY = 'spillover_party_verified';
 
 export default function LoginPage() {
+  const [partyCode, setPartyCode] = useState('');
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [name, setName] = useState('');
-  const [step, setStep] = useState<Step>('email');
+  const [step, setStep] = useState<Step>(() => {
+    // If no party code is configured, skip to email
+    if (!PARTY_CODE) return 'email';
+    return 'party-code';
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
   const { supabase, user, loading: authLoading } = useSupabase();
+
+  // Check if party code was already verified
+  useEffect(() => {
+    if (typeof window !== 'undefined' && PARTY_CODE) {
+      const verified = localStorage.getItem(PARTY_CODE_KEY);
+      if (verified === 'true') {
+        setStep('email');
+      }
+    }
+  }, []);
+
+  const verifyPartyCode = (): void => {
+    setError('');
+    if (partyCode === PARTY_CODE) {
+      localStorage.setItem(PARTY_CODE_KEY, 'true');
+      setStep('email');
+    } else {
+      setError('Invalid party code');
+    }
+  };
 
   // Redirect if already logged in
   useEffect(() => {
@@ -157,6 +186,33 @@ export default function LoginPage() {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
+          {step === 'party-code' && (
+            <>
+              <div className="flex justify-center">
+                <Lock className="h-8 w-8 text-muted-foreground" />
+              </div>
+              <p className="text-sm text-muted-foreground text-center">
+                Enter the party code to continue
+              </p>
+              <Input
+                type="text"
+                inputMode="numeric"
+                placeholder="6-digit code"
+                value={partyCode}
+                onChange={(e) => setPartyCode(e.target.value.replace(/\D/g, ''))}
+                className="text-lg h-12 text-center tracking-widest"
+                maxLength={6}
+              />
+              <Button
+                onClick={verifyPartyCode}
+                disabled={partyCode.length !== 6}
+                className="w-full h-12 text-lg"
+              >
+                Enter Party
+              </Button>
+            </>
+          )}
+
           {step === 'email' && (
             <>
               <Input

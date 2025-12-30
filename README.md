@@ -60,6 +60,9 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 # App Configuration
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 NEXT_PUBLIC_NEW_YEAR_TARGET=2026-01-01T00:00:00+05:30
+
+# Party Code (optional - 6 digits, leave empty to disable)
+NEXT_PUBLIC_PARTY_CODE=123456
 ```
 
 Get your Supabase credentials from: Project Settings → API
@@ -89,6 +92,16 @@ Update `NEXT_PUBLIC_NEW_YEAR_TARGET` in your `.env.local`:
 # Format: YYYY-MM-DDTHH:MM:SS+TIMEZONE
 NEXT_PUBLIC_NEW_YEAR_TARGET=2026-01-01T00:00:00+05:30
 ```
+
+### Restrict Access with Party Code
+
+Add a 6-digit party code to restrict access. Only people with the code can enter:
+
+```env
+NEXT_PUBLIC_PARTY_CODE=123456
+```
+
+Leave empty or remove to disable the party code requirement.
 
 ### Customize Party Mode Timing
 
@@ -189,6 +202,7 @@ NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 NEXT_PUBLIC_APP_URL=https://your-domain.vercel.app
 NEXT_PUBLIC_NEW_YEAR_TARGET=2026-01-01T00:00:00+05:30
+NEXT_PUBLIC_PARTY_CODE=123456
 ```
 
 ## Scripts
