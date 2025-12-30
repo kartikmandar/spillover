@@ -94,7 +94,7 @@ export function useTwoTruths(): UseTwoTruthsReturn {
     };
   }, [supabase, fetchSubmissions]);
 
-  // Submit new two truths (with 30 min reveal time)
+  // Submit new two truths (with 5 min reveal time)
   const submitTwoTruths = useCallback(
     async (
       statement1: string,

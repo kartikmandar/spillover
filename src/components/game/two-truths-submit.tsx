@@ -141,7 +141,7 @@ export function TwoTruthsSubmit({
             disabled={disabled || loading || !isValid}
             className="w-full"
           >
-            {loading ? 'Submitting...' : 'Submit (reveals in 30 min)'}
+            {loading ? 'Submitting...' : 'Submit (reveals in 5 min)'}
           </Button>
         </div>
 

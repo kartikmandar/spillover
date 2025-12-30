@@ -5,7 +5,7 @@ A mobile-first party game web app for New Year's Eve celebrations. Built with Ne
 ## Features
 
 - **Hot Takes** - Share anonymous spicy opinions. Vote agree/disagree and react with emojis.
-- **Two Truths & a Lie** - Submit 3 statements (2 true, 1 lie). Others guess which is the lie. Reveals after 30 minutes.
+- **Two Truths & a Lie** - Submit 3 statements (2 true, 1 lie). Others guess which is the lie. Reveals after 5 minutes.
 - **Leaderboard** - Compete for points by correctly guessing lies.
 - **New Year Countdown** - Live countdown with party mode that activates 3 hours before midnight.
 - **Sound Effects** - Immersive audio feedback for interactions.

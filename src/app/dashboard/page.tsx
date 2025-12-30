@@ -158,7 +158,7 @@ export default function DashboardPage() {
                     <li>Post an anonymous hot take (up to 500 characters)</li>
                     <li>Vote &quot;Agree&quot; or &quot;Disagree&quot; on others&apos; takes</li>
                     <li>React with emojis to show how you feel</li>
-                    <li>5-minute cooldown between submissions</li>
+                    <li>5-minute cooldown between posts</li>
                   </ul>
                 </div>
               </div>
@@ -181,7 +181,7 @@ export default function DashboardPage() {
                   <p className="font-medium">How it works:</p>
                   <ul className="list-disc list-inside text-muted-foreground space-y-1">
                     <li>Submit 3 statements and mark which one is your lie</li>
-                    <li>Others have 30 minutes to guess before the reveal</li>
+                    <li>Others have 5 minutes to guess before the reveal</li>
                     <li>Your name is shown only after the reveal</li>
                     <li>You can only have one active submission at a time</li>
                   </ul>
